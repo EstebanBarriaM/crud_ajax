@@ -40,7 +40,7 @@
             <div class="modal-body">
                 <form id="userForm" name="userForm" class="form-horizontal" novalidate method="POST">
                     @csrf
-                    <input type="hidden" name="id" id="id">
+                    <input type="text" name="id" id="id">
                     <div class="form-group">
                         <label for="name" class="col-sm-2 control-label">Nombre</label>
                         <div class="col-sm-12">
@@ -72,7 +72,7 @@
                         </div>
                     </div>
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Guardar</button>
+                        <button type="submit" class="btn btn-primary" id="saveBtn" value="create"></button>
                     </div>
                 </form>
             </div>
@@ -106,7 +106,8 @@
             });
 
             $('#createNewUser').click(function () {
-                $('#saveBtn').val("{{ route('ajax-crud.store') }}");
+                $('#saveBtn').val("create-user");
+                $('#saveBtn').html("Guardar");
                 $('#name').val('');
                 $('#last_name').val('');
                 $('#username').val('');
@@ -122,11 +123,36 @@
                 $.get("{{ route('ajax-crud.index') }}" +'/' + user_id +'/edit', function (data) {
                     $('#modelHeading').html("Editar Usuario");
                     $('#modal').modal('show');
+                    $('#saveBtn').val("edit-user");
+                    $('#saveBtn').html("Editar");
                     $('#id').val(data.id);
                     $('#name').val(data.name);
                     $('#last_name').val(data.last_name);
                     $('#username').val(data.username);
                     $('#email').val(data.email);
+                });
+            });
+
+            $('#saveBtn').click(function (e) {
+                e.preventDefault();
+
+                $.ajax({
+                    data: $('#userForm').serialize(),
+                    url: "{{ route('ajax-crud.store') }}",
+                    type: "POST",
+                    dataType: 'json',
+                    success: function (data) {
+
+                        $('#userForm').trigger("reset");
+                        $('#modal').modal('hide');
+                        table.draw();
+
+                    },
+                    error: function (data) {
+                        console.log('Error', data);
+                        $('#saveBtn').html('Reintentar');
+                    }
+
                 });
             });
 

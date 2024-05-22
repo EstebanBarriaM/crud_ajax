@@ -38,7 +38,16 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'name' => 'required|max:20',
+            'last_name' => 'required|max:20',
+            'username' => 'required|max:20',
+            'email' => 'required|max:50',
+            'password' => 'required'
+        ]);
+
         User::updateOrCreate([
+            'id' => $request->id,
             'name' => $request->name,
             'last_name' => $request->last_name,
             'username' => $request->username,
@@ -46,7 +55,7 @@ class UserController extends Controller
             'password' => bcrypt($request->password)
         ]);
 
-        return back()->with('messagge', 'Registro Guardado');
+        return response()->json(['errors']);
     }
 
     public function show(string $id)
