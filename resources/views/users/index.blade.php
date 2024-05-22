@@ -15,7 +15,7 @@
 <body>
 <div class="container">
     <h1 class="mb-5 mt-4"> CRUD Ajax - Usuarios </h1>
-    <a class="btn btn-success mb-4" href="javascript:void(0)" id="createNewProduct"> Nuevo Registro</a>
+    <a class="btn btn-success mb-4" href="javascript:void(0)" id="createNewUser"> Nuevo Registro</a>
     <table class="table table-bordered data-table">
         <thead>
             <tr>
@@ -31,29 +31,48 @@
         </tbody>
     </table>
 </div>
-<div class="modal fade" id="ajaxModel" aria-hidden="true">
+<div class="modal fade" id="modal" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title" id="modelHeading"></h4>
             </div>
             <div class="modal-body">
-                <form id="productForm" name="productForm" class="form-horizontal">
-                   <input type="hidden" name="product_id" id="product_id">
+                <form id="userForm" name="userForm" class="form-horizontal" novalidate method="POST">
+                    @csrf
+                    <input type="hidden" name="id" id="id">
                     <div class="form-group">
-                        <label for="name" class="col-sm-2 control-label">Name</label>
+                        <label for="name" class="col-sm-2 control-label">Nombre</label>
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="name" name="name" placeholder="Enter Name" value="" maxlength="50" required="">
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Ingrese Nombre" value="" maxlength="50" required="">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">Details</label>
+                        <label for="last_name" class="col-sm-2 control-label">Apellido</label>
                         <div class="col-sm-12">
-                            <textarea id="detail" name="detail" required="" placeholder="Enter Details" class="form-control"></textarea>
+                            <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Ingrese Apellido" value="" maxlength="50" required="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="username" class="col-sm-2 control-label">Username</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Ingrese Username" value="" maxlength="50" required="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="col-sm-2 control-label">Correo</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="email" name="email" placeholder="Ingrese Correo" value="" maxlength="100" required="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="col-sm-2 control-label">Contraseña</label>
+                        <div class="col-sm-12">
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Ingrese Contraseña" value="" maxlength="100" required="">
                         </div>
                     </div>
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save changes</button>
+                        <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Guardar</button>
                     </div>
                 </form>
             </div>
@@ -84,6 +103,31 @@
                     {data: 'email', name: 'email'},
                     {data: 'action', name: 'action', orderable: false, searchable: false}
                 ]
+            });
+
+            $('#createNewUser').click(function () {
+                $('#saveBtn').val("{{ route('ajax-crud.store') }}");
+                $('#name').val('');
+                $('#last_name').val('');
+                $('#username').val('');
+                $('#email').val('');
+                $('#password').val('');
+                $('#userForm').trigger("reset");
+                $('#modelHeading').html('Nuevo Usuario');
+                $('#modal').modal('show');
+            });
+
+            $('body').on('click', '.editUser', function () {
+                var user_id = $(this).data('id');
+                $.get("{{ route('ajax-crud.index') }}" +'/' + user_id +'/edit', function (data) {
+                    $('#modelHeading').html("Editar Usuario");
+                    $('#modal').modal('show');
+                    $('#id').val(data.id);
+                    $('#name').val(data.name);
+                    $('#last_name').val(data.last_name);
+                    $('#username').val(data.username);
+                    $('#email').val(data.email);
+                });
             });
 
         });
