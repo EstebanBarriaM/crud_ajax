@@ -156,6 +156,22 @@
                 });
             });
 
+            $('body').on('click', '.deleteUser', function () {
+                var user_id = $(this).data("id");
+                confirm("Estas seguro de eliminar el registro?");
+
+                $.ajax({
+                    type: "DELETE",
+                    url: "{{ route('ajax-crud.index') }}" +'/'+user_id,
+                    success: function (data) {
+                        table.draw();
+                    },
+                    error: function (data) {
+                        console.log('Error', data);
+                    }
+                });
+            });
+
         });
 
     </script>

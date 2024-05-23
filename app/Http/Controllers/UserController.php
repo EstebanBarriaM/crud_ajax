@@ -38,24 +38,23 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|max:20',
-            'last_name' => 'required|max:20',
-            'username' => 'required|max:20',
-            'email' => 'required|max:50',
-            'password' => 'required'
-        ]);
 
-        User::updateOrCreate([
-            'id' => $request->id,
-            'name' => $request->name,
-            'last_name' => $request->last_name,
-            'username' => $request->username,
-            'email' => $request->email,
-            'password' => bcrypt($request->password)
-        ]);
+        $user_id = $request->id;
 
-        return response()->json(['errors']);
+        $users = User::updateOrCreate(
+            [
+                'id' => $user_id
+            ],
+            [
+                'name' => $request->name,
+                'last_name' => $request->last_name,
+                'username' => $request->username,
+                'email' => $request->email,
+                'password' => bcrypt($request->password)
+            ]
+        );
+
+        return response()->json($users);
     }
 
     public function show(string $id)
@@ -77,6 +76,8 @@ class UserController extends Controller
 
     public function destroy(string $id)
     {
+        User::find($id)->delete();
 
+        return response()->json(['success'=>'Record deleted successfully.']);
     }
 }
