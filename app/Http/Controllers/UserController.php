@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use DataTables;
 
 class UserController extends Controller
 {
@@ -14,7 +13,7 @@ class UserController extends Controller
 
             $data = User::latest()->get();
 
-            return Datatables::of($data)
+            return datatables()->of($data)
                         ->addIndexColumn()
                         ->addColumn('action', function($row) {
 
@@ -38,6 +37,13 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'name' => 'required',
+            'last_name' => 'required',
+            'username' => 'required',
+            'email' => 'required',
+            'password' => 'required'
+        ]);
 
         $user_id = $request->id;
 
@@ -78,6 +84,6 @@ class UserController extends Controller
     {
         User::find($id)->delete();
 
-        return response()->json(['success'=>'Record deleted successfully.']);
+        return response()->json();
     }
 }

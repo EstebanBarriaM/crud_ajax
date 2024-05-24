@@ -38,9 +38,8 @@
                 <h4 class="modal-title" id="modelHeading"></h4>
             </div>
             <div class="modal-body">
-                <form id="userForm" name="userForm" class="form-horizontal" novalidate method="POST">
-                    @csrf
-                    <input type="text" name="id" id="id">
+                <form id="userForm" name="userForm" class="form-horizontal" novalidate>
+                    <input type="hidden" name="id" id="id">
                     <div class="form-group">
                         <label for="name" class="col-sm-2 control-label">Nombre</label>
                         <div class="col-sm-12">
@@ -116,11 +115,15 @@
                 $('#userForm').trigger("reset");
                 $('#modelHeading').html('Nuevo Usuario');
                 $('#modal').modal('show');
+                clearErrors();
             });
 
             $('body').on('click', '.editUser', function () {
+                clearErrors();
                 var user_id = $(this).data('id');
-                $.get("{{ route('ajax-crud.index') }}" +'/' + user_id +'/edit', function (data) {
+                let url = '{{ route('ajax-crud.edit', ':id') }}';
+                url = url.replace(':id', user_id);
+                $.get(url, function (data) {
                     $('#modelHeading').html("Editar Usuario");
                     $('#modal').modal('show');
                     $('#saveBtn').val("edit-user");
@@ -141,36 +144,59 @@
                     url: "{{ route('ajax-crud.store') }}",
                     type: "POST",
                     dataType: 'json',
-                    success: function (data) {
+                    success: function(data) {
 
                         $('#userForm').trigger("reset");
                         $('#modal').modal('hide');
                         table.draw();
+                        alert("Registro Guardado con Exito!");
 
                     },
-                    error: function (data) {
-                        console.log('Error', data);
-                        $('#saveBtn').html('Reintentar');
+                    error: function(data) {
+                        if(data.status === 422) {
+                            let errors = $.parseJSON(data.responseText).errors;
+                            showErrors(errors);
+                            $('#saveBtn').html('Reintentar');
+                        }
                     }
 
                 });
             });
 
             $('body').on('click', '.deleteUser', function () {
-                var user_id = $(this).data("id");
-                confirm("Estas seguro de eliminar el registro?");
-
-                $.ajax({
-                    type: "DELETE",
-                    url: "{{ route('ajax-crud.index') }}" +'/'+user_id,
-                    success: function (data) {
-                        table.draw();
-                    },
-                    error: function (data) {
-                        console.log('Error', data);
-                    }
-                });
+                if (confirm("Estas seguro de eliminar el registro?")) {
+                    var user_id = $(this).data("id");
+                    let url = '{{ route('ajax-crud.destroy', ':id') }}';
+                    url = url.replace(':id', user_id);
+                    $.ajax({
+                        type: "DELETE",
+                        url: url,
+                        success: function (data) {
+                            table.draw();
+                            alert("Registro Eliminado con Exito!");
+                        },
+                        error: function (data) {
+                            console.log('Error', data);
+                        }
+                    });
+                };
             });
+
+            function showErrors(errors){
+                clearErrors();
+                $.each(errors, function(key, value) {
+                    let input = $('input[name="'+key+'"]');
+                    input.addClass('is-invalid');
+                    input.after('<span class="invalid-feedback"> <strong> '+value+' </strong> </span>');
+                });
+            }
+
+            function clearErrors(){
+                $('#userForm input').each(function() {
+                    $(this).removeClass('is-invalid');
+                    $(this).siblings('.invalid-feedback').remove();
+                });
+            }
 
         });
 
